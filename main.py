@@ -1,12 +1,15 @@
 # Personagem: Classe mãe
 # Heroi: Controlado pelo Usuario
 # Inimigo: adversario do usuario
+from typing import Self
+
 
 class Personagem:
-    def __init__(self, nome, vida, nivel):
+    def __init__(self, nome, vida, nivel, habilidade):
         self.__nome = nome
         self.__vida = vida
         self.__nivel = nivel
+        self.__habilidade = habilidade
 
     def get_nome(self):
         return self.__nome
@@ -17,39 +20,84 @@ class Personagem:
     def get_nivel(self):
         return self.__nivel
 
+    def get_habilidade(self):
+        return self.__habilidade
+
     def exibir_detalhes(self):
         return f"Nome: {self.get_nome()}\nVida: {self.get_vida()}\nNivel: {self.get_nivel()}\n"
+
+    def receber_ataque(self, dano):
+        self.__vida -= dano
+        if self.__vida <= 0:
+            self.__vida = 0
+
+    def atacar(self, alvo):
+        dano = self.__nivel * 2
+        alvo.receber_ataque(dano)
+        print(f"{self.get_nome()} atacou {alvo.get_nome()} e causou {dano} de dano! ")
+
+    def ataque_especial(self, alvo):
+        dano = self.__nivel * 4 # dano aumentado
+        alvo.receber_ataque(dano)
+        print(f"{self.get_nome()} usou a habilidade especial {self.get_habilidade()} em {alvo.get_nome()} e causou {dano} de dano!")
 
 
 class Heroi(Personagem):
     def __init__(self, nome, vida, nivel, habilidade):
-        super().__init__(nome, vida, nivel)
-        self.__habilidade = habilidade
-
-    def get_habilidade(self):
-        return self.__habilidade
+        super().__init__(nome, vida, nivel, habilidade)
 
     def exibir_detalhes(self):
         return f"{super().exibir_detalhes()}Habilidade: {self.get_habilidade()}\n"
 
 class Inimigo(Personagem):
-    def __init__(self, nome, vida, nivel, tipo, magia):
-        super().__init__(nome, vida, nivel)
+    def __init__(self, nome, vida, nivel, tipo, habilidade):
+        super().__init__(nome, vida, nivel,habilidade)
         self.__tipo = tipo
-        self.__magia = magia
 
     def get_tipo(self):
         return self.__tipo
 
-    def get_magia(self):
-        return self.__magia
-
     def exibir_detalhes(self):
-        return f"{super().exibir_detalhes()}Magia: {self.get_magia()}\nTipo: {self.get_tipo()}\n"
+        return f"{super().exibir_detalhes()}Habilidade: {self.get_habilidade()}\nTipo: {self.get_tipo()}\n"
+
+class Jogo:
+    """ Classe Orquestradora do jogo """
+    def __init__(self):
+        self.heroi = Heroi(nome="heroi", vida=100, nivel=5, habilidade="super força")
+        self.inimigo = Inimigo(nome="Vagante Branco", vida=110, nivel=6, tipo="Morto vivo", habilidade="Espada de gelo")
+
+    def iniciar_batalha(self):
+        """ Fazer a gestao da batalha em turnos """
+        print("Iniciando batalha!")
+        while self.heroi.get_vida() > 0 and self.inimigo.get_vida() > 0:
+            print("\nDetalhes dos Personagens")
+            print(self.heroi.exibir_detalhes())
+            print(self.inimigo.exibir_detalhes())
+
+            input("Pressione Enter para atacar...")
+            escolha = input("Escolha (1 - Ataque Normal, 2 - Ataque Especial):")
+
+            if escolha == '1':
+                self.heroi.atacar(self.inimigo)
+            elif escolha == '2':
+                self.heroi.ataque_especial(self.inimigo)
+            else:
+                print("Escolha invalida. Escolha novamente")
+
+            if self.inimigo.get_vida() >= 50:
+                # Inimigo ataca heroi
+                self.inimigo.atacar(self.heroi)
+            else:
+                self.inimigo.ataque_especial(self.heroi)
 
 
-heroi = Heroi(nome="heroi", vida=100, nivel=5, habilidade="super força")
-print(heroi.exibir_detalhes())
+        if self.heroi.get_vida() > 0:
+            print("Parabens, voce venceu a batalha")
+        else:
+            print("Voce foi derrotado")
 
-inimigo1 = Inimigo(nome="Vagante Branco", vida=110, nivel=6, tipo="Morto vivo", magia="Espada de gelo")
-print(inimigo1.exibir_detalhes())
+
+
+# Criar Instancia do jogo e iniciar a batalha
+jogo = Jogo()
+jogo.iniciar_batalha()
