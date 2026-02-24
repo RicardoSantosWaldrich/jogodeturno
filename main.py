@@ -1,7 +1,7 @@
 # Personagem: Classe mãe
 # Heroi: Controlado pelo Usuario
 # Inimigo: adversario do usuario
-from typing import Self
+import random
 
 
 class Personagem:
@@ -32,12 +32,12 @@ class Personagem:
             self.__vida = 0
 
     def atacar(self, alvo):
-        dano = self.__nivel * 2
+        dano = random.randint(self.get_nivel() * 2, self.get_nivel() * 3 ) #dano aleatorio
         alvo.receber_ataque(dano)
         print(f"{self.get_nome()} atacou {alvo.get_nome()} e causou {dano} de dano! ")
 
     def ataque_especial(self, alvo):
-        dano = self.__nivel * 4 # dano aumentado
+        dano = random.randint(self.get_nivel() * 4, self.get_nivel() * 5 ) # dano aumentado
         alvo.receber_ataque(dano)
         print(f"{self.get_nome()} usou a habilidade especial {self.get_habilidade()} em {alvo.get_nome()} e causou {dano} de dano!")
 
@@ -64,7 +64,7 @@ class Jogo:
     """ Classe Orquestradora do jogo """
     def __init__(self):
         self.heroi = Heroi(nome="heroi", vida=100, nivel=5, habilidade="super força")
-        self.inimigo = Inimigo(nome="Vagante Branco", vida=110, nivel=6, tipo="Morto vivo", habilidade="Espada de gelo")
+        self.inimigo = Inimigo(nome="Vagante Branco", vida=100, nivel=5, tipo="Morto vivo", habilidade="Espada de gelo")
 
     def iniciar_batalha(self):
         """ Fazer a gestao da batalha em turnos """
@@ -84,11 +84,19 @@ class Jogo:
             else:
                 print("Escolha invalida. Escolha novamente")
 
+            # inimigo decide qual ataque utilizar baseado na sua vida
             if self.inimigo.get_vida() >= 50:
-                # Inimigo ataca heroi
-                self.inimigo.atacar(self.heroi)
+                # 30% de chance de usar o ataque especial com vida alta
+                if random.random() < 0.3: # 30% de chance
+                    self.inimigo.ataque_especial(self.heroi)
+                else:
+                    self.inimigo.atacar(self.heroi)
             else:
-                self.inimigo.ataque_especial(self.heroi)
+                # Com vida baixa, 70% de chance de usar o ataque especial
+                if random.random() < 0.7: # 70% de chance
+                    self.inimigo.ataque_especial(self.heroi)
+                else:
+                    self.inimigo.atacar(self.heroi)
 
 
         if self.heroi.get_vida() > 0:
